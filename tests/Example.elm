@@ -51,19 +51,27 @@ type Msg = Change String | NotDo
 
 suite : Test
 suite =
-    test "Should increase the counter when click" <|
-        \() ->
-            let
-                program = testBeginnerProgram
-                    { model = Main.model
-                    , view = Main.view
-                    , update = Main.update
-                    }
-                programAfterFirstClick = simulateClick program "increase"
-                programAfterSecondClick = simulateClick programAfterFirstClick "increase"
-            in
-                programAfterSecondClick.fromHtml
-                |> Query.find [ Selector.attribute <| attribute "data-test-id" "counter" ]
-                |> Query.has [ Selector.text "2" ]
-
+    describe "Testing counter"
+        [ test "(Behavioural way) Should increase the counter when click" <|
+            \() ->
+                let
+                    program = testBeginnerProgram
+                        { model = Main.model
+                        , view = Main.view
+                        , update = Main.update
+                        }
+                    programAfterFirstClick = simulateClick program "increase"
+                    programAfterSecondClick = simulateClick programAfterFirstClick "increase"
+                in
+                    programAfterSecondClick.fromHtml
+                        |> Query.find [ Selector.attribute <| attribute "data-test-id" "counter" ]
+                        |> Query.has [ Selector.text "2" ]
+        , test "(Common way) Should increase the counter when click" <|
+                      \() ->
+                          Main.view 0
+                              |> Query.fromHtml
+                              |> Query.find [ Selector.attribute <| attribute "data-test-id" "increase" ]
+                              |> Event.simulate (Event.click)
+                              |> Event.expect (Main.Increment)
+        ]
 
